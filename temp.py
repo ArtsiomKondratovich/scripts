@@ -1,39 +1,29 @@
 from requests_html import HTMLSession
-from bs4 import BeautifulSoup
 
-from script_for_site_1 import name_to_coords
+from script_for_site_3 import name_to_coords
 
 session = HTMLSession()
-temp = [('/sucursales/79', 'Valparaíso')]
 
-BASE_URL = 'https://oriencoop.cl'
-for one_object_soup in temp:
-    result_dict_for_one = {
-        "address": str(address),
-        "latlaon": name_to_coords(address),
-        "name": one_object_soup[one_object_soup[1]],
-    }
 
-    response = session.get(url=f'{BASE_URL}{one_object_soup[0]}')
-    response.html.render()
-    raw_data = response.html.find('.s-dato', first=True)
-    soup = BeautifulSoup(raw_data.html, 'lxml').find_all('p')
-    for one_object_soup in soup:
-        address = one_object_soup.span.get_text()
-        for include_object_in_one_object in one_object_soup.span:
-            print(include_object_in_one_object)
+def get_data_for_one_shop(one_shop: tuple) -> dict:
+    base_url = 'https://naturasiberica.ru'
+    link = one_shop[0]
+    result_dict = {}
+    response = session.get(url=f'{base_url}{link}')
+    r = response.html.render()
+    # raw_phones: str = response.html.find('.original-shops__phone', first=True).text
+    # raw_phones = raw_phones.split(':')[1]
+    # phones = re.sub(r'[^0-9]', '', raw_phones)
+    # print(phones)
+    address = one_shop[1]
+    print(address)
+    result_dict["address"] = address
+    result_dict["latlon"] = name_to_coords(address)
+    result_dict["name"] = 'Natura Siberica'
+    result_dict["phones"] = None
+    result_dict["working_hours"] = None
+    return result_dict
 
-"""<p>
-<strong>Dirección:</strong><br/>
-<span>Esmeralda 940 L.4 - Valparaíso</span>
-</p>, <p>
-<strong>Teléfono:</strong><br/>
-<span>71-2201096</span>
-</p>, <p>
-<strong>Agente:</strong><br/>
-<span> </span>
-</p>, <p>
-<strong>Horarios:</strong><br/>
-<span><img src="/resources/img/li.png"/> Mañana: 08.50 a 14.10 hrs.</span><br/>
-<span><img src="/resources/img/li.png"/> Tarde: 15.00 a 17.10 horas (L a J) / Hasta 16.10 horas (V)</span>
-</p>"""
+
+print(get_data_for_one_shop(('/our-shops/voronezh-tts-galereya-chizhova/',
+                             ' Россия, Воронеж, ул. Кольцовская, д. 35, ТЦ "Галерея Чижова", 1 этаж ')))
