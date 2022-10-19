@@ -113,6 +113,7 @@ def main():
     for dep in list_all_dep:
         res = get_data_of_department(dep)
         result.append(res)
+    return result
 
 
 if __name__ == '__main__':
