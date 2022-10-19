@@ -18,12 +18,20 @@ def get_all_shops() -> list:
         list_of_all_shops.append((city.get('id'), city.get_text()))
     return list_of_all_shops
 
+
 def get_data_one_shop(one_shop_object: tuple):
     base_url = 'https://som1.ru/shops/'
     shop_id = one_shop_object[0]
-    url=f'{base_url}{shop_id}'
+    url = f'{base_url}{shop_id}'
+
     response = session.get(url=url)
-    response.html.render(sleep=3)
+    cookies: dict = response.cookies.get_dict()
+    cookies['BITRIX_SM_CITY_ID'] = '3215'
+    # print(cookies, '\n')
+    # print(type(cookies), '\n')
+    response = session.get(url=url, cookies=cookies)
+    print(response.cookies)
+    # response.html.render(sleep=3)
 
 
 print(get_data_one_shop(('3215', 'Богданович')))

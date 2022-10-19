@@ -1,9 +1,6 @@
-import json
-
 from requests_html import HTMLSession
 from geopy.geocoders import Nominatim
 from bs4 import BeautifulSoup
-import lxml
 import regex
 
 
@@ -15,7 +12,7 @@ def name_to_coords(name: str) -> list:
     """
     geolocator = Nominatim(user_agent="script_for_site_1")
     location = geolocator.geocode(name)
-    if location == None:
+    if location is None:
         return name_to_coords(name.split(' ')[-1])
     return [location.latitude, location.longitude]
 
@@ -30,7 +27,7 @@ def get_all_departmets() -> list:
     try:
 
         response = session.get(url=url)
-        response.html.render(sleep=5) #sleep need for render JS
+        response.html.render(sleep=5)  # sleep need for render JS
         departments = response.html.find(".sub-menu")
         for i in departments:
             soup = BeautifulSoup(i.html, 'lxml').find_all('a')
@@ -40,7 +37,7 @@ def get_all_departmets() -> list:
     except Exception:
 
         print('Error in def get_all_departments! Restart')
-        get_all_departmets()
+        return get_all_departmets()
 
 
 def reg_for_date(raw_list: list) -> list:
@@ -58,7 +55,7 @@ def reg_for_date(raw_list: list) -> list:
     return working
 
 
-def get_data_of_department(one_object_at_list_derarp: list or tuple) -> str:
+def get_data_of_department(one_object_at_list_derarp: list or tuple) -> dict:
     """
     Get data about one department
     :param one_object_at_list_derarp: tuple()
@@ -110,11 +107,14 @@ def get_data_of_department(one_object_at_list_derarp: list or tuple) -> str:
         get_data_of_department(one_object_at_list_derarp)
 
 
-if __name__ == '__main__':
-    session = HTMLSession()
-    RESULT = []
+def main():
+    result = []
     list_all_dep = get_all_departmets()
     for dep in list_all_dep:
         res = get_data_of_department(dep)
-        RESULT.append(res)
-    print(RESULT)
+        result.append(res)
+
+
+if __name__ == '__main__':
+    session = HTMLSession()
+    main()
