@@ -37,27 +37,39 @@ def name_to_coords(address: str) -> list:
     return [location.latitude, location.longitude]
 
 
+def re_phone(string: str):
+    string = string.split(':')[1:]
+    result = []
+    for i in string:
+        result.append(re.sub(r'\D', '', i))
+    return result
+
+
 def get_data_for_one_shop(one_shop: tuple) -> dict:
     base_url = 'https://naturasiberica.ru'
     link = one_shop[0]
     result_dict = {}
     response = session.get(url=f'{base_url}{link}')
-    r = response.html.render()
-    # raw_phones: str = response.html.find('.original-shops__phone', first=True).text
-    # raw_phones = raw_phones.split(':')[1]
-    # phones = re.sub(r'[^0-9]', '', raw_phones)
-    # print(phones)
+    response.html.render(sleep=3)
+    raw_phones: str = response.html.find('.original-shops__phone', first=True).text
+    working_time = response.html.find('.original-shops__schedule', first=True).text
     address = one_shop[1]
-    print(address)
     result_dict["address"] = address
     result_dict["latlon"] = name_to_coords(address)
     result_dict["name"] = 'Natura Siberica'
-    result_dict["phones"] = None
-    result_dict["working_hours"] = None
+    result_dict["phones"] = re_phone(raw_phones)
+    result_dict["working_hours"] = [working_time]
     return result_dict
 
 
-session = HTMLSession()
+def main():
+    list_of_all_shops = get_list_of_all_shops()
+    result = []
+    for one_shop in list_of_all_shops:
+        result.append(get_data_for_one_shop(one_shop))
+    return result
 
-print(get_data_for_one_shop(('/our-shops/voronezh-tts-galereya-chizhova/',
-                             ' Россия, Воронеж, ул. Кольцовская, д. 35, ТЦ "Галерея Чижова", 1 этаж ')))
+
+if __name__ == '__main__':
+    session = HTMLSession()
+    print(main())
